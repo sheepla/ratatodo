@@ -3,13 +3,19 @@ use crate::{
     state::{self, State},
 };
 
+#[derive(Debug, thiserror::Error)]
+pub enum AppError {
+    #[error("Cache Error: {0}")]
+    Cache(#[from] crate::services::cache::CacheError),
+}
+
 #[derive(Debug)]
 pub struct App {
     pub state: State,
 }
 
 impl App {
-    pub fn init() -> eyre::Result<Self> {
+    pub fn init() -> Result<Self, AppError> {
         let mut state = state::State::new();
         state.data = import_todo_data()?;
 

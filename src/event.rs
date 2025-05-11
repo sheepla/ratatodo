@@ -5,6 +5,12 @@ use eyre::OptionExt;
 use futures::{FutureExt, StreamExt};
 use tokio::sync::mpsc;
 
+#[derive(Debug, thiserror::Error)]
+pub enum EventError {
+    #[error("Failed receive terminal event")]
+    RecvTerminalEvent,
+}
+
 #[derive(Clone, Copy, Debug)]
 pub enum TerminalEvent {
     Tick,
@@ -56,12 +62,12 @@ impl EventHandler {
         }
     }
 
-    pub async fn next(&mut self) -> eyre::Result<TerminalEvent> {
+    pub async fn next(&mut self) -> Result<TerminalEvent, EventError> {
         let event = self
             .receiver
             .recv()
             .await
-            .ok_or_eyre("failed to receive the next event")?;
+            .ok_or_else(|| EventError::RecvTerminalEvent)?;
 
         Ok(event)
     }
