@@ -1,6 +1,5 @@
 use crate::{
     action::Action,
-    models::models::TodoEntryState,
     state::{State, WidgetFocus},
 };
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers, MouseEvent, MouseEventKind};

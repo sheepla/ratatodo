@@ -1,6 +1,5 @@
 use crate::models::models::TodoData;
 use dirs;
-use eyre::OptionExt;
 use std::{fs::File, path::PathBuf};
 
 const CACHE_FILE_NAME: &str = "ratatodo_cache.json";

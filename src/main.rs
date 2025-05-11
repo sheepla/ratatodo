@@ -1,4 +1,3 @@
-use eyre::eyre;
 use handler::{handle_actions, handle_mouse_events};
 use ratatui::{backend::CrosstermBackend, Terminal};
 

@@ -6,7 +6,6 @@ use crossterm::terminal::{self, EnterAlternateScreen, LeaveAlternateScreen};
 use ratatui::backend::Backend;
 use ratatui::Terminal;
 use std::io;
-use std::panic;
 
 #[derive(Debug, thiserror::Error)]
 pub enum TuiError {
