@@ -22,6 +22,8 @@ pub mod widgets;
 
 #[tokio::main]
 async fn main() -> eyre::Result<()> {
+    color_eyre::install()?;
+
     let mut app = App::init()?;
 
     let backend = CrosstermBackend::new(std::io::stderr());

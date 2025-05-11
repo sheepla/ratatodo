@@ -6,6 +6,7 @@ license = "MIT"
 edition = "2021"
 
 [dependencies]
+color-eyre = "0.6.4"
 crossterm = { version = "0.28.1", features = ["event-stream"] }
 dirs = "5.0.1"
 eyre = "0.6.12"

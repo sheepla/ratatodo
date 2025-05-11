@@ -8,6 +8,33 @@ use ratatui::Terminal;
 use std::io;
 use std::panic;
 
+#[derive(Debug, thiserror::Error)]
+pub enum TuiError {
+    #[error("Failed to enable raw mode")]
+    EnableRawMode(std::io::Error),
+
+    #[error("Failed to disable raw mode")]
+    DisableRawMode(std::io::Error),
+
+    #[error("Failed to enter alternate screen")]
+    EnterAlternateScreen(std::io::Error),
+
+    #[error("Failed to leave alternate screen")]
+    LeaveAlternateScreen(std::io::Error),
+
+    #[error("Failed to hide cursor")]
+    HideCursor(std::io::Error),
+
+    #[error("Failed to unhide cursor")]
+    UnhideCursor(std::io::Error),
+
+    #[error("Failed to reset the screen")]
+    ResetScreen(std::io::Error),
+
+    #[error("Failed to clear screen")]
+    ClearScreen(std::io::Error),
+}
+
 #[derive(Debug)]
 pub struct Tui<B: Backend> {
     terminal: Terminal<B>,
@@ -19,18 +46,17 @@ impl<B: Backend> Tui<B> {
         Self { terminal, events }
     }
 
-    pub fn init(&mut self) -> eyre::Result<()> {
-        terminal::enable_raw_mode()?;
-        crossterm::execute!(io::stdout(), EnterAlternateScreen, EnableMouseCapture)?;
+    pub fn init(&mut self) -> Result<(), TuiError> {
+        terminal::enable_raw_mode().map_err(|err| TuiError::EnableRawMode(err))?;
+        crossterm::execute!(io::stdout(), EnterAlternateScreen, EnableMouseCapture)
+            .map_err(|err| TuiError::EnterAlternateScreen(err))?;
 
-        let panic_hook = panic::take_hook();
-        panic::set_hook(Box::new(move |panic| {
-            Self::reset().expect("failed to reset the terminal");
-            panic_hook(panic);
-        }));
-
-        self.terminal.hide_cursor()?;
-        self.terminal.clear()?;
+        self.terminal
+            .hide_cursor()
+            .map_err(|err| TuiError::HideCursor(err))?;
+        self.terminal
+            .clear()
+            .map_err(|err| TuiError::ClearScreen(err))?;
         Ok(())
     }
 
@@ -40,15 +66,18 @@ impl<B: Backend> Tui<B> {
         Ok(())
     }
 
-    fn reset() -> eyre::Result<()> {
-        terminal::disable_raw_mode()?;
-        crossterm::execute!(io::stdout(), LeaveAlternateScreen, DisableMouseCapture)?;
+    fn reset() -> Result<(), TuiError> {
+        terminal::disable_raw_mode().map_err(|err| TuiError::DisableRawMode(err))?;
+        crossterm::execute!(io::stdout(), LeaveAlternateScreen, DisableMouseCapture)
+            .map_err(|err| TuiError::LeaveAlternateScreen(err))?;
         Ok(())
     }
 
-    pub fn exit(&mut self) -> eyre::Result<()> {
+    pub fn exit(&mut self) -> Result<(), TuiError> {
         Self::reset()?;
-        self.terminal.show_cursor()?;
+        self.terminal
+            .show_cursor()
+            .map_err(|err| TuiError::ClearScreen(err))?;
         Ok(())
     }
 }
