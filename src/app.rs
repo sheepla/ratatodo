@@ -1,31 +1,26 @@
-use std::error;
+use crate::{
+    services::cache::{export_todo_data, import_todo_data},
+    state::{self, State},
+};
 
-use crate::state::State;
-
-/// Application.
 #[derive(Debug)]
 pub struct App {
-    pub running: bool,
     pub state: State,
 }
 
-impl Default for App {
-    fn default(initial_state: &State) -> Self {
-        Self {
-            running: true,
-            state: initial_state,
-        }
-    }
-}
-
 impl App {
-    pub fn new() -> Self {
-        Self::default()
+    pub fn init() -> eyre::Result<Self> {
+        let mut state = state::State::new();
+        state.data = import_todo_data()?;
+
+        Ok(Self { state })
     }
 
     pub fn tick(&self) {}
+}
 
-    pub fn quit(&mut self) {
-        self.running = false;
+impl Drop for App {
+    fn drop(&mut self) {
+        export_todo_data(&self.state.data).expect("failed to save todo entries data");
     }
 }
