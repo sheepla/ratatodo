@@ -35,19 +35,21 @@ async fn main() -> eyre::Result<()> {
     while !app.state.should_quit {
         tui.draw(&mut app)?;
 
-        match tui.events.next().await? {
-            TerminalEvent::Tick => app.tick(),
-            TerminalEvent::Key(key_event) => {
-                if let Some(action) = handle_key_events(key_event, &mut app.state) {
-                    handle_actions(action, &mut app.state);
+        if let Some(event) = tui.events.next().await {
+            match event {
+                TerminalEvent::Tick => app.tick(),
+                TerminalEvent::Key(key_event) => {
+                    if let Some(action) = handle_key_events(key_event, &mut app.state) {
+                        handle_actions(action, &mut app.state);
+                    }
                 }
-            }
-            TerminalEvent::Mouse(mouse_event) => {
-                if let Some(action) = handle_mouse_events(&mouse_event, &mut app.state) {
-                    handle_actions(action, &mut app.state);
+                TerminalEvent::Mouse(mouse_event) => {
+                    if let Some(action) = handle_mouse_events(&mouse_event, &mut app.state) {
+                        handle_actions(action, &mut app.state);
+                    }
                 }
+                TerminalEvent::Resize(_, _) => {}
             }
-            TerminalEvent::Resize(_, _) => {}
         }
     }
 

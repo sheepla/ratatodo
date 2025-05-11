@@ -1,7 +1,6 @@
 use std::time::Duration;
 
 use crossterm::event::{Event as CrosstermEvent, KeyEvent, MouseEvent};
-use eyre::OptionExt;
 use futures::{FutureExt, StreamExt};
 use tokio::sync::mpsc;
 
@@ -62,14 +61,11 @@ impl EventHandler {
         }
     }
 
-    pub async fn next(&mut self) -> Result<TerminalEvent, EventError> {
-        let event = self
+    pub async fn next(&mut self) -> Option<TerminalEvent> {
+        self
             .receiver
             .recv()
             .await
-            .ok_or_else(|| EventError::RecvTerminalEvent)?;
-
-        Ok(event)
     }
 }
 
