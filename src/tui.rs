@@ -5,7 +5,6 @@ use crossterm::event::{DisableMouseCapture, EnableMouseCapture};
 use crossterm::terminal::{self, EnterAlternateScreen, LeaveAlternateScreen};
 use ratatui::backend::Backend;
 use ratatui::Terminal;
-use std::io;
 
 #[derive(Debug, thiserror::Error)]
 pub enum TuiError {
@@ -50,7 +49,7 @@ impl<B: Backend> Tui<B> {
 
     pub fn init(&mut self) -> Result<(), TuiError> {
         terminal::enable_raw_mode().map_err(|err| TuiError::EnableRawMode(err))?;
-        crossterm::execute!(io::stdout(), EnterAlternateScreen, EnableMouseCapture)
+        crossterm::execute!(std::io::stdout(), EnterAlternateScreen, EnableMouseCapture)
             .map_err(|err| TuiError::EnterAlternateScreen(err))?;
 
         self.terminal
@@ -71,7 +70,7 @@ impl<B: Backend> Tui<B> {
 
     fn reset() -> Result<(), TuiError> {
         terminal::disable_raw_mode().map_err(|err| TuiError::DisableRawMode(err))?;
-        crossterm::execute!(io::stdout(), LeaveAlternateScreen, DisableMouseCapture)
+        crossterm::execute!(std::io::stdout(), LeaveAlternateScreen, DisableMouseCapture)
             .map_err(|err| TuiError::LeaveAlternateScreen(err))?;
         Ok(())
     }
