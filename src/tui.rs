@@ -33,6 +33,9 @@ pub enum TuiError {
 
     #[error("Failed to clear screen")]
     ClearScreen(std::io::Error),
+
+    #[error("UI rendering error: {0}")]
+    Rendering(std::io::Error),
 }
 
 #[derive(Debug)]
@@ -60,9 +63,10 @@ impl<B: Backend> Tui<B> {
         Ok(())
     }
 
-    pub fn draw(&mut self, app: &mut App) -> eyre::Result<()> {
+    pub fn draw(&mut self, app: &mut App) -> Result<(), TuiError> {
         self.terminal
-            .draw(|frame| ui::render_screen(&mut app.state, frame))?;
+            .draw(|frame| ui::render_screen(&mut app.state, frame))
+            .map_err(|err| TuiError::Rendering(err))?;
         Ok(())
     }
 
