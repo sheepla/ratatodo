@@ -26,7 +26,7 @@ async fn main() -> eyre::Result<()> {
 
     let mut app = App::init()?;
 
-    let backend = CrosstermBackend::new(std::io::stderr());
+    let backend = CrosstermBackend::new(std::io::stdout());
     let terminal = Terminal::new(backend)?;
     let events = EventHandler::new(250);
     let mut tui = Tui::new(terminal, events);

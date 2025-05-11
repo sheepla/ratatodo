@@ -26,7 +26,7 @@ pub enum TuiError {
     HideCursor(std::io::Error),
 
     #[error("Failed to unhide cursor")]
-    UnhideCursor(std::io::Error),
+    ShowCursor(std::io::Error),
 
     #[error("Failed to reset the screen")]
     ResetScreen(std::io::Error),
@@ -77,7 +77,7 @@ impl<B: Backend> Tui<B> {
         Self::reset()?;
         self.terminal
             .show_cursor()
-            .map_err(|err| TuiError::ClearScreen(err))?;
+            .map_err(|err| TuiError::ShowCursor(err))?;
         Ok(())
     }
 }
