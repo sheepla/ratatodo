@@ -72,38 +72,25 @@ mod tests {
     }
 
     #[test]
-    fn test_import_todo_data() -> eyre::Result<()> {
-        let test_data = TodoData {
-            entries: vec![
-                TodoEntry {
-                    title: "Learn Rust".to_string(),
-                    state: TodoEntryState::InComplete,
-                },
-                TodoEntry {
-                    title: "Reply to mail".to_string(),
-                    state: TodoEntryState::Completed,
-                },
-                TodoEntry {
-                    title: "Cleanup my room".to_string(),
-                    state: TodoEntryState::InComplete,
-                },
-                TodoEntry {
-                    title: "Go shopping for dinner".to_string(),
-                    state: TodoEntryState::InComplete,
-                },
-            ],
-        };
+    fn test_import_todo_data() {
+        let mut entries = Vec::<TodoEntry>::new();
+        for i in 1..=100 {
+            entries.push(TodoEntry {
+                title: format!("Item {}", i),
+                state: TodoEntryState::InComplete,
+            })
+        }
 
-        export_todo_data(&test_data)?;
+        let test_data = TodoData { entries };
 
-        let imported_data = import_todo_data()?;
+        export_todo_data(&test_data).expect("failed to export todo data");
+
+        let imported_data = import_todo_data().expect("failed to import todo data");
 
         dbg!(&imported_data);
         assert_eq!(imported_data, test_data);
 
         let mut cache_file_path = dirs::cache_dir().expect("failed to get cache dir");
         cache_file_path.push(CACHE_FILE_NAME);
-
-        Ok(())
     }
 }
