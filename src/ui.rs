@@ -4,7 +4,8 @@ use ratatui::{
 };
 
 use crate::{
-    state::State, widgets::textarea::TodoEntryTextArea, widgets::todo_entry_listview::TodoEntryList,
+    state::State, widgets::todo_entry_listview::TodoEntryList,
+    widgets::todo_entry_textarea::TodoEntryTextArea,
 };
 
 pub fn render_screen(state: &mut State, frame: &mut Frame) {
