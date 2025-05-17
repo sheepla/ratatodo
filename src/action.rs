@@ -1,3 +1,5 @@
+use crossterm::event::KeyEvent;
+
 use crate::state::WidgetFocus;
 
 #[derive(Debug)]
@@ -6,5 +8,6 @@ pub enum Action {
     MoveCursor(i32),
     DeleteCurrentEntry,
     ToggleCurrentEntryState,
+    InputInTextArea(KeyEvent),
     Quit,
 }

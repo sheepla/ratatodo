@@ -1,4 +1,6 @@
-use crate::models::models::{TodoData, TodoEntryState};
+use crossterm::event::KeyCode;
+
+use crate::models::models::{TodoData, TodoEntry, TodoEntryState};
 
 #[derive(Debug, Default)]
 pub struct State {
@@ -6,6 +8,7 @@ pub struct State {
     pub widget_focus: WidgetFocus,
     pub cursor: usize,
     pub data: TodoData,
+    pub textarea: tui_textarea::TextArea<'static>,
 }
 
 #[derive(Debug, Default)]
@@ -34,6 +37,13 @@ impl State {
         } else {
             self.cursor = new_cursor as usize;
         }
+    }
+
+    pub fn add_entry(&mut self, title: &str) {
+        self.data.entries.push(TodoEntry {
+            title: title.to_string(),
+            state: TodoEntryState::InComplete,
+        })
     }
 
     pub fn delete_current_entry(&mut self) {

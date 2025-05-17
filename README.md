@@ -4,7 +4,7 @@
 
 </div>
 
-An implementation of a async and event-driven sample todo application with [ratatui](https://ratatui.rs) and [crossterm](https://docs.rs/crossterm/latest/crossterm/)
+This is a sample TUI TODO app with an asynchronous, event-driven, designed with a Flux-like architecture built with [ratatui](https://ratatui.rs) and [crossterm](https://docs.rs/crossterm/latest/crossterm/)
 
 <div align="center">
 
@@ -17,7 +17,16 @@ An implementation of a async and event-driven sample todo application with [rata
 - [x] View todo entries 
 - [x] Moving cursor
 - [x] Delete current todo entry
-- [x] Load/Save todo data
-- [ ] Add and Edit todo entries with textarea
+- [x] Loading / Saving todo data automatically in JSON
+- [x] Add and Edit TODO entries with textarea
+- [ ] Customizable key bindings via config file
+- [ ] Non-blocking action execution handling
 
+## Usage
+
+- `k`, `j`, `Up`, `Down`: Move focus
+- `i`, `a`: Focus to textarea
+- `Enter`: Accept current entry
+- `Esc`: Focus to todo list view
+- `Space`: Toggle completed/incomplete state
 

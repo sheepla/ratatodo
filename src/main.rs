@@ -1,10 +1,9 @@
-use handler::{handle_actions, handle_mouse_events};
 use ratatui::{backend::CrosstermBackend, Terminal};
 
 use crate::{
     app::App,
     event::{EventHandler, TerminalEvent},
-    handler::handle_key_events,
+    handler::{handle_actions, handle_key_events, handle_mouse_events},
     tui::Tui,
 };
 

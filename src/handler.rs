@@ -2,69 +2,48 @@ use crate::{
     action::Action,
     state::{State, WidgetFocus},
 };
+use color_eyre::owo_colors::OwoColorize;
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers, MouseEvent, MouseEventKind};
+use tui_textarea::TextArea;
 
 pub fn handle_key_events(key_event: KeyEvent, state: &State) -> Option<Action> {
-    match key_event.code {
-        // Exit application on `ESC` or `q`
-        KeyCode::Char('q') => Some(Action::Quit),
-        // Exit application on `Ctrl-C`
-        KeyCode::Char('c') | KeyCode::Char('C') => {
-            if key_event.modifiers == KeyModifiers::CONTROL {
+    match state.widget_focus {
+        WidgetFocus::ListView => match key_event.code {
+            KeyCode::Char('q') => Some(Action::Quit),
+            KeyCode::Char('c') | KeyCode::Char('C')
+                if key_event.modifiers == KeyModifiers::CONTROL =>
+            {
                 Some(Action::Quit)
-            } else {
-                None
             }
-        }
-        // Move cursor up or down when focusing on the list view
-        KeyCode::Up | KeyCode::Char('k') => match state.widget_focus {
-            WidgetFocus::ListView => Some(Action::MoveCursor(-1)),
-            WidgetFocus::TextArea => None,
+            KeyCode::Up | KeyCode::Char('k') => Some(Action::MoveCursor(-1)),
+            KeyCode::Down | KeyCode::Char('j') => Some(Action::MoveCursor(1)),
+            KeyCode::Char(' ') => Some(Action::ToggleCurrentEntryState),
+            KeyCode::Char('i') | KeyCode::Char('a') => {
+                Some(Action::MoveWidgetFocus(WidgetFocus::TextArea))
+            }
+            KeyCode::Char('x') => Some(Action::DeleteCurrentEntry),
+            _ => None,
         },
-        KeyCode::Down | KeyCode::Char('j') => match state.widget_focus {
-            WidgetFocus::ListView => Some(Action::MoveCursor(1)),
-            WidgetFocus::TextArea => None,
+        WidgetFocus::TextArea => match key_event.code {
+            KeyCode::Char('c') | KeyCode::Char('C')
+                if key_event.modifiers == KeyModifiers::CONTROL =>
+            {
+                Some(Action::Quit)
+            }
+            KeyCode::Esc => Some(Action::MoveWidgetFocus(WidgetFocus::ListView)),
+            _ => Some(Action::InputInTextArea(key_event)),
         },
-
-        // Toggle ToDo state
-        KeyCode::Char(' ') => match state.widget_focus {
-            WidgetFocus::ListView => Some(Action::ToggleCurrentEntryState),
-            WidgetFocus::TextArea => None,
-        },
-
-        // Enter to text area like Vim's INSERT mode
-        KeyCode::Char('i') | KeyCode::Char('a') => match state.widget_focus {
-            WidgetFocus::ListView => Some(Action::MoveWidgetFocus(WidgetFocus::TextArea)),
-            WidgetFocus::TextArea => None,
-        },
-
-        // Delete currrent entry
-        KeyCode::Char('x') => match state.widget_focus {
-            WidgetFocus::ListView => Some(Action::DeleteCurrentEntry),
-            WidgetFocus::TextArea => None,
-        },
-
-        // Leave text area like Vim's NORMAL mode
-        KeyCode::Esc => match state.widget_focus {
-            WidgetFocus::ListView => None,
-            WidgetFocus::TextArea => Some(Action::MoveWidgetFocus(WidgetFocus::ListView)),
-        },
-
-        _ => None,
     }
 }
 
 pub fn handle_mouse_events(mouse_event: &MouseEvent, state: &State) -> Option<Action> {
-    match mouse_event.kind {
-        MouseEventKind::ScrollDown => match state.widget_focus {
-            WidgetFocus::ListView => Some(Action::MoveCursor(1)),
-            WidgetFocus::TextArea => None,
+    match state.widget_focus {
+        WidgetFocus::ListView => match mouse_event.kind {
+            MouseEventKind::ScrollUp => Some(Action::MoveCursor(-1)),
+            MouseEventKind::ScrollDown => Some(Action::MoveCursor(1)),
+            _ => None,
         },
-        MouseEventKind::ScrollUp => match state.widget_focus {
-            WidgetFocus::ListView => Some(Action::MoveCursor(1)),
-            WidgetFocus::TextArea => None,
-        },
-        _ => None,
+        WidgetFocus::TextArea => None,
     }
 }
 
@@ -80,6 +59,22 @@ pub fn handle_actions(action: Action, state: &mut State) {
         }
         Action::ToggleCurrentEntryState => {
             state.toggle_current_entry_state();
+        }
+        Action::InputInTextArea(key_event) => {
+            if key_event.code == KeyCode::Enter {
+                // Accept line
+                let text = state.textarea.lines().join("\n");
+
+                if text.trim().is_empty() {
+                    return; // Ignore blank input
+                }
+
+                state.add_entry(&text); // Add an entry
+                state.textarea = TextArea::new(vec![]); // Clear textarea
+            } else {
+                // Input text
+                state.textarea.input(key_event);
+            }
         }
     }
 }

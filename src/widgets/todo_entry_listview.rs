@@ -81,7 +81,6 @@ impl<'a> TodoEntryList<'a> {
                     Block::new()
                         // Border style
                         .borders(Borders::all())
-                        .border_type(BorderType::Thick)
                         .border_style(Style::default().fg(Color::DarkGray))
                         // Title style
                         .title("Todo List")
