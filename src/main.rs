@@ -1,3 +1,4 @@
+use action::Action;
 use dispatcher::Dispatcher;
 use ratatui::{backend::CrosstermBackend, Terminal};
 
@@ -29,28 +30,35 @@ async fn main() -> eyre::Result<()> {
     let backend = CrosstermBackend::new(std::io::stdout());
     let terminal = Terminal::new(backend)?;
     let events = EventHandler::new(250);
-    let dispatcher = Dispatcher::new();
     let mut tui = Tui::new(terminal, events);
+    let (action_sender, mut action_receiver) = tokio::sync::mpsc::unbounded_channel::<Action>();
+    let dispatcher = Dispatcher::new(action_sender);
 
     tui.init()?;
 
     while !app.state.should_quit() {
         tui.draw(&mut app)?;
 
-        if let Some(event) = tui.events.next().await {
-            match event {
-                TerminalEvent::Tick => app.tick(),
-                TerminalEvent::Key(key_event) => {
-                    if let Some(action) = handle_key_events(key_event, &mut app.state) {
-                        dispatcher.dispatch(action, &mut app.state).await;
+        tokio::select! {
+            Some(action) = action_receiver.recv() => {
+                dispatcher.dispatch(&mut app.state, action).await;
+            }
+
+            Some(event) = tui.events.next() => {
+                match event {
+                    TerminalEvent::Tick => app.tick(),
+                    TerminalEvent::Key(key_event) => {
+                        if let Some(action) = handle_key_events(key_event, &mut app.state) {
+                            dispatcher.dispatch(&mut app.state, action).await;
+                        }
                     }
-                }
-                TerminalEvent::Mouse(mouse_event) => {
-                    if let Some(action) = handle_mouse_events(&mouse_event, &mut app.state) {
-                        dispatcher.dispatch(action, &mut app.state).await;
+                    TerminalEvent::Mouse(mouse_event) => {
+                        if let Some(action) = handle_mouse_events(&mouse_event, &mut app.state) {
+                            dispatcher.dispatch(&mut app.state, action).await;
+                        }
                     }
+                    TerminalEvent::Resize(_, _) => {}
                 }
-                TerminalEvent::Resize(_, _) => {}
             }
         }
     }

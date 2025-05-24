@@ -1,4 +1,5 @@
 use crossterm::event::KeyCode;
+use tokio::sync::mpsc::{UnboundedReceiver, UnboundedSender};
 
 use crate::{
     action::Action,
@@ -7,15 +8,15 @@ use crate::{
 
 #[derive(Debug)]
 pub struct Dispatcher {
-    // TODO
+    sender: UnboundedSender<Action>,
 }
 
 impl Dispatcher {
-    pub fn new() -> Self {
-        Self {}
+    pub fn new(sender: UnboundedSender<Action>) -> Self {
+        Self { sender }
     }
 
-    pub async fn dispatch(&self, action: Action, state: &mut State) {
+    pub async fn dispatch(&self, state: &mut State, action: Action) {
         match action {
             Action::MoveWidgetFocus(focus) => state.set_widget_focus(focus),
             Action::MoveCursor(delta) => state.move_cursor(delta),
@@ -47,14 +48,19 @@ impl Dispatcher {
             Action::RunSomeHeavyTask => {
                 state.some_heavy_task_state = SomeHeavyTaskState::Loading;
 
-                // do_some_heavy_task().await;
-
+                let sender = self.sender.clone();
+                let _ = tokio::spawn(async move {
+                    do_some_heavy_task().await;
+                    let _ =sender.send(Action::CompletedSomeHeavyTask);
+                });
+            }
+            Action::CompletedSomeHeavyTask => {
                 state.some_heavy_task_state = SomeHeavyTaskState::Ready;
             }
         }
     }
 }
 
-// async fn do_some_heavy_task() {
-//     tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
-// }
+async fn do_some_heavy_task() {
+    tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
+}

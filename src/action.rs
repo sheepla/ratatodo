@@ -10,5 +10,6 @@ pub enum Action {
     ToggleCurrentEntryState,
     InputInTextArea(KeyEvent),
     RunSomeHeavyTask,
+    CompletedSomeHeavyTask,
     Quit,
 }
