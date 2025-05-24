@@ -22,7 +22,7 @@ pub enum CacheError {
     JsonDeserialize(serde_json::Error),
 }
 
-pub fn export_todo_data(data: &TodoData) -> Result<(), CacheError> {
+pub fn save_todo_data(data: &TodoData) -> Result<(), CacheError> {
     let mut cache_file_path = dirs::cache_dir().ok_or_else(|| CacheError::CacheDir)?;
     cache_file_path.push(CACHE_FILE_NAME);
 
@@ -36,7 +36,7 @@ pub fn export_todo_data(data: &TodoData) -> Result<(), CacheError> {
     Ok(())
 }
 
-pub fn import_todo_data() -> Result<TodoData, CacheError> {
+pub fn load_todo_data() -> Result<TodoData, CacheError> {
     let mut cache_file_path = dirs::cache_dir().ok_or_else(|| CacheError::CacheDir)?;
     cache_file_path.push(CACHE_FILE_NAME);
 
@@ -60,7 +60,7 @@ mod tests {
     #[test]
     fn test_export_todo_data() -> eyre::Result<()> {
         let test_data = TodoData::default();
-        export_todo_data(&test_data)?;
+        save_todo_data(&test_data)?;
 
         let mut cache_file_path = dirs::cache_dir().expect("failed to get cache dir");
         cache_file_path.push(CACHE_FILE_NAME);
@@ -72,7 +72,7 @@ mod tests {
     }
 
     #[test]
-    fn test_import_todo_data() {
+    fn test_load_todo_data() {
         let mut entries = Vec::<TodoEntry>::new();
         for i in 1..=100 {
             entries.push(TodoEntry {
@@ -83,12 +83,12 @@ mod tests {
 
         let test_data = TodoData { entries };
 
-        export_todo_data(&test_data).expect("failed to export todo data");
+        save_todo_data(&test_data).expect("failed to export todo data");
 
-        let imported_data = import_todo_data().expect("failed to import todo data");
+        let loaded_data = load_todo_data().expect("failed to import todo data");
 
-        dbg!(&imported_data);
-        assert_eq!(imported_data, test_data);
+        dbg!(&loaded_data);
+        assert_eq!(loaded_data, test_data);
 
         let mut cache_file_path = dirs::cache_dir().expect("failed to get cache dir");
         cache_file_path.push(CACHE_FILE_NAME);

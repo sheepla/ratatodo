@@ -1,5 +1,5 @@
 use crate::{
-    services::cache::{export_todo_data, import_todo_data},
+    services::cache::{load_todo_data, save_todo_data},
     state::{self, State},
 };
 
@@ -17,7 +17,7 @@ pub struct App {
 impl App {
     pub fn init() -> Result<Self, AppError> {
         let mut state = state::State::new();
-        state.data = import_todo_data()?;
+        state.data = load_todo_data()?;
 
         Ok(Self { state })
     }
@@ -27,6 +27,6 @@ impl App {
 
 impl Drop for App {
     fn drop(&mut self) {
-        export_todo_data(&self.state.data).expect("failed to save todo entries data");
+        save_todo_data(&self.state.data).expect("failed to save todo entries data");
     }
 }
