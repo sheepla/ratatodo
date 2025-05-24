@@ -29,4 +29,6 @@ This is a sample TUI TODO app with an asynchronous, event-driven, designed with 
 - `Enter`: Accept current entry
 - `Esc`: Focus to todo list view
 - `Space`: Toggle completed/incomplete state
+- `r`: Run some heavy task (Reproduces pseudo-heavy tasks. While the task is running, the status bar is updated with `Loading...` is displayed while the task is running)
+
 
