@@ -3,7 +3,7 @@ use ratatui::{
     layout::{Alignment, Rect},
     style::{Color, Modifier, Style, Stylize},
     text::{Span, Text},
-    widgets::{Block, BorderType, Borders, List, Widget},
+    widgets::{Block, Borders, List, Widget},
 };
 
 use crate::{models::models::TodoEntryState, state::State};

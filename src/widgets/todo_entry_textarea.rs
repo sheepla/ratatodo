@@ -1,9 +1,8 @@
-use color_eyre::owo_colors::OwoColorize;
 use ratatui::prelude::*;
-use ratatui::widgets::{Block, BorderType, Borders, Widget};
+use ratatui::widgets::{Block, Borders, Widget};
 use tui_textarea::TextArea;
 
-use crate::state::{State, WidgetFocus};
+use crate::state::WidgetFocus;
 
 pub struct TodoEntryTextArea<'a> {
     textarea: TextArea<'a>,

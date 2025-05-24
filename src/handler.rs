@@ -1,11 +1,9 @@
-use std::time::Duration;
 
 use crate::{
     action::Action,
-    state::{SomeHeavyTaskState, State, WidgetFocus},
+    state::{State, WidgetFocus},
 };
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers, MouseEvent, MouseEventKind};
-use tui_textarea::TextArea;
 
 pub fn handle_key_events(key_event: KeyEvent, state: &State) -> Option<Action> {
     match state.widget_focus {

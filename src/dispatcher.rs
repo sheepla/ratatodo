@@ -1,5 +1,5 @@
 use crossterm::event::KeyCode;
-use tokio::sync::mpsc::{UnboundedReceiver, UnboundedSender};
+use tokio::sync::mpsc::UnboundedSender;
 
 use crate::{
     action::Action,

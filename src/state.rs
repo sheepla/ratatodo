@@ -1,10 +1,7 @@
-use crossterm::event::{KeyCode, KeyEvent};
+use crossterm::event::KeyEvent;
 use tui_textarea::TextArea;
 
-use crate::{
-    models::models::{TodoData, TodoEntry, TodoEntryState},
-    widgets::statusbar,
-};
+use crate::models::models::{TodoData, TodoEntry, TodoEntryState};
 
 #[derive(Debug, Default)]
 pub struct State {
