@@ -19,8 +19,8 @@ This is a sample TUI TODO app with an asynchronous, event-driven, designed with 
 - [x] Delete current todo entry
 - [x] Loading / Saving todo data automatically in JSON
 - [x] Add and Edit TODO entries with textarea
-- [ ] Customizable key bindings via config file
-- [ ] Non-blocking action execution handling
+- [ ] Customizable key bindings in config file
+- [x] Non-blocking action execution handling
 
 ## Usage
 
