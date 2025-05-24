@@ -4,12 +4,6 @@ use crossterm::event::{Event as CrosstermEvent, KeyEvent, MouseEvent};
 use futures::{FutureExt, StreamExt};
 use tokio::sync::mpsc;
 
-#[derive(Debug, thiserror::Error)]
-pub enum EventError {
-    #[error("Failed receive terminal event")]
-    RecvTerminalEvent,
-}
-
 #[derive(Clone, Copy, Debug)]
 pub enum TerminalEvent {
     Tick,
@@ -29,7 +23,7 @@ pub struct EventHandler {
 impl EventHandler {
     pub fn new(tick_rate: u64) -> Self {
         let tick_rate = Duration::from_millis(tick_rate);
-        let (sender, receiver) = mpsc::unbounded_channel();
+        let (sender, receiver) = tokio::sync::mpsc::unbounded_channel();
         let _sender = sender.clone();
 
         let handler = tokio::spawn(async move {
@@ -62,10 +56,7 @@ impl EventHandler {
     }
 
     pub async fn next(&mut self) -> Option<TerminalEvent> {
-        self
-            .receiver
-            .recv()
-            .await
+        self.receiver.recv().await
     }
 }
 

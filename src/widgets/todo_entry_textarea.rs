@@ -19,22 +19,23 @@ impl<'a> Widget for TodoEntryTextArea<'a> {
 }
 
 impl<'a> TodoEntryTextArea<'a> {
-    pub fn new(state: &mut crate::state::State) -> Self {
+    pub fn new(state: &'a crate::state::State) -> Self {
         // Setup styles
-        state.textarea.set_cursor_style(Style::default());
-        state.textarea.set_placeholder_text("Todo Title");
-        let border_color = match state.widget_focus {
+        let mut textarea = state.get_textarea();
+        textarea.set_cursor_style(Style::default());
+        textarea.set_placeholder_text("Todo Title");
+        let border_color = match state.get_widget_focus() {
             WidgetFocus::TextArea => Color::Cyan,
             WidgetFocus::ListView => Color::DarkGray,
         };
-        state.textarea.set_block(
+        textarea.set_block(
             Block::new()
                 .borders(Borders::all())
                 .border_style(Style::default().fg(border_color)),
         );
 
         Self {
-            textarea: state.textarea.to_owned(),
+            textarea: textarea.to_owned(),
         }
     }
 }

@@ -9,5 +9,6 @@ pub enum Action {
     DeleteCurrentEntry,
     ToggleCurrentEntryState,
     InputInTextArea(KeyEvent),
+    RunSomeHeavyTask,
     Quit,
 }

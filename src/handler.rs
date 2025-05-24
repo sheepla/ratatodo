@@ -1,8 +1,9 @@
+use std::time::Duration;
+
 use crate::{
     action::Action,
-    state::{State, WidgetFocus},
+    state::{SomeHeavyTaskState, State, WidgetFocus},
 };
-use color_eyre::owo_colors::OwoColorize;
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers, MouseEvent, MouseEventKind};
 use tui_textarea::TextArea;
 
@@ -22,6 +23,7 @@ pub fn handle_key_events(key_event: KeyEvent, state: &State) -> Option<Action> {
                 Some(Action::MoveWidgetFocus(WidgetFocus::TextArea))
             }
             KeyCode::Char('x') => Some(Action::DeleteCurrentEntry),
+            KeyCode::Char('r') => Some(Action::RunSomeHeavyTask),
             _ => None,
         },
         WidgetFocus::TextArea => match key_event.code {
@@ -47,34 +49,42 @@ pub fn handle_mouse_events(mouse_event: &MouseEvent, state: &State) -> Option<Ac
     }
 }
 
-pub fn handle_actions(action: Action, state: &mut State) {
-    match action {
-        Action::MoveWidgetFocus(widget_focus) => state.widget_focus = widget_focus,
-        Action::MoveCursor(delta) => state.move_cursor(delta),
-        Action::Quit => {
-            state.quit();
-        }
-        Action::DeleteCurrentEntry => {
-            state.delete_current_entry();
-        }
-        Action::ToggleCurrentEntryState => {
-            state.toggle_current_entry_state();
-        }
-        Action::InputInTextArea(key_event) => {
-            if key_event.code == KeyCode::Enter {
-                // Accept line
-                let text = state.textarea.lines().join("\n");
-
-                if text.trim().is_empty() {
-                    return; // Ignore blank input
-                }
-
-                state.add_entry(&text); // Add an entry
-                state.textarea = TextArea::new(vec![]); // Clear textarea
-            } else {
-                // Input text
-                state.textarea.input(key_event);
-            }
-        }
-    }
-}
+// pub fn handle_actions(action: Action, state: &mut State) {
+//     match action {
+//         Action::MoveWidgetFocus(widget_focus) => state.widget_focus = widget_focus,
+//         Action::MoveCursor(delta) => state.move_cursor(delta),
+//         Action::Quit => {
+//             state.quit();
+//         }
+//         Action::DeleteCurrentEntry => {
+//             state.delete_current_entry();
+//         }
+//         Action::ToggleCurrentEntryState => {
+//             state.toggle_current_entry_state();
+//         }
+//         Action::InputInTextArea(key_event) => {
+//             if key_event.code == KeyCode::Enter {
+//                 // Accept line
+//                 let text = state.textarea.lines().join("\n");
+//
+//                 if text.trim().is_empty() {
+//                     return; // Ignore blank input
+//                 }
+//
+//                 state.add_entry(&text); // Add an entry
+//                 state.textarea = TextArea::new(vec![]); // Clear textarea
+//             } else {
+//                 // Input text
+//                 state.textarea.input(key_event);
+//             }
+//         }
+//         Action::RunSomeHeavyTask => {
+//             state.some_heavy_task_state = SomeHeavyTaskState::Loading;
+//
+//             // Simulate the execution of a heavy task
+//             std::thread::sleep(Duration::from_secs(5));
+//
+//             state.some_heavy_task_state = SomeHeavyTaskState::Ready;
+//         }
+//     }
+// }

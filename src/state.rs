@@ -1,21 +1,33 @@
-use crossterm::event::KeyCode;
+use crossterm::event::{KeyCode, KeyEvent};
+use tui_textarea::TextArea;
 
-use crate::models::models::{TodoData, TodoEntry, TodoEntryState};
+use crate::{
+    models::models::{TodoData, TodoEntry, TodoEntryState},
+    widgets::statusbar,
+};
 
 #[derive(Debug, Default)]
 pub struct State {
-    pub should_quit: bool,
+    quit: bool,
     pub widget_focus: WidgetFocus,
     pub cursor: usize,
     pub data: TodoData,
-    pub textarea: tui_textarea::TextArea<'static>,
+    textarea: tui_textarea::TextArea<'static>,
+    pub some_heavy_task_state: SomeHeavyTaskState,
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub enum WidgetFocus {
     #[default]
     ListView,
     TextArea,
+}
+
+#[derive(Debug, Default)]
+pub enum SomeHeavyTaskState {
+    Loading,
+    #[default]
+    Ready,
 }
 
 impl State {
@@ -23,8 +35,12 @@ impl State {
         State::default()
     }
 
-    pub fn quit(&mut self) {
-        self.should_quit = true;
+    pub fn set_quit(&mut self) {
+        self.quit = true;
+    }
+
+    pub fn should_quit(&self) -> bool {
+        self.quit
     }
 
     pub fn move_cursor(&mut self, delta: i32) {
@@ -65,5 +81,29 @@ impl State {
                 TodoEntryState::InComplete => TodoEntryState::Completed,
             }
         }
+    }
+
+    pub fn set_widget_focus(&mut self, focus: WidgetFocus) {
+        self.widget_focus = focus;
+    }
+
+    pub fn get_widget_focus(&self) -> WidgetFocus {
+        self.widget_focus.clone()
+    }
+
+    pub fn get_textarea_content(&self) -> String {
+        self.textarea.lines().join("\n")
+    }
+
+    pub fn clear_textarea(&mut self) {
+        self.textarea = TextArea::new(vec![]);
+    }
+
+    pub fn input_to_textarea(&mut self, key_event: KeyEvent) {
+        self.textarea.input(key_event);
+    }
+
+    pub fn get_textarea(&self) -> TextArea {
+        self.textarea.to_owned()
     }
 }
