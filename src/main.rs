@@ -26,10 +26,9 @@ async fn main() -> eyre::Result<()> {
     color_eyre::install()?;
 
     let mut app = App::init()?;
-
     let backend = CrosstermBackend::new(std::io::stdout());
     let terminal = Terminal::new(backend)?;
-    let events = EventHandler::new(250);
+    let events = EventHandler::new(10);
     let mut tui = Tui::new(terminal, events);
     let (action_sender, mut action_receiver) = tokio::sync::mpsc::unbounded_channel::<Action>();
     let dispatcher = Dispatcher::new(action_sender);
@@ -37,8 +36,6 @@ async fn main() -> eyre::Result<()> {
     tui.init()?;
 
     while !app.state.should_quit() {
-        tui.draw(&mut app)?;
-
         tokio::select! {
             Some(action) = action_receiver.recv() => {
                 dispatcher.dispatch(&mut app.state, action).await;
@@ -46,7 +43,10 @@ async fn main() -> eyre::Result<()> {
 
             Some(event) = tui.events.next() => {
                 match event {
-                    TerminalEvent::Tick => app.tick(),
+                    TerminalEvent::Tick => {
+                        app.tick();
+                        tui.draw(&mut app)?;
+                    }
                     TerminalEvent::Key(key_event) => {
                         if let Some(action) = handle_key_events(key_event, &mut app.state) {
                             dispatcher.dispatch(&mut app.state, action).await;
